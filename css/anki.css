@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+
+body {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+}
+
+#anki {
+    background-color: whitesmoke;
+    padding: 10px;
+
+    text-align: center;
+    box-shadow: 2px 2px 8px;
+    border-radius: 5px;
+
+    font-size: 20px;
+
+    height: 80%
+}
+
+.ankiapp {
+    display: flex;
+    align-items: center;
+    height: 90%
+}
+
+.card-button {
+
+}
+
+#card-front {
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+#card-helper {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+#card-global-back {
+    padding-top: 20px;
+}
+
+#card-details1, #card-details2 {
+    font-style: italic;
+    font-size: 15px;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#card-counter {
+    text-align: center;
+    padding-bottom: 20px;
+}
