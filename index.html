@@ -21,8 +21,19 @@
 
 <body>
     <div class="container-fluid">
-        <div class="row ankiapp">
-            <div class="col-md-2 col-md-offset-1 card-button" id="previous-button"><i class="fas fa-arrow-left"></i>
+        <div class="row quizz-header">
+            <div class="col-md-4">Quizz: <span id="quizz-title"></span></div>
+            <div class="col-md-3" class="card-grade">
+                Grade: <span id="card-grade-value">0</span>%
+            </div>
+            <div class="offset-md-11 col-md-1" id="quizz-info">
+                <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#help-modal"><i
+                        class="far fa-question-circle"></i></button>
+            </div>
+        </div>
+        <div class="row ankiapp" id="ankiapp">
+            <div class="col-md-2 offset-md-1 card-button" id="previous-button">
+                <i class="fas fa-arrow-left"></i>
                 Previous card
             </div>
             <div class="col-md-6" id="anki">
@@ -37,20 +48,58 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2 col-md-offset-1 card-button" id="after-button">Next card <i
-                    class="fas fa-arrow-right"></i></div>
+            <div class="col-md-2 offset-md-1 card-button" id="after-button" style="visibility: hidden">
+                Next card
+                <i class="fas fa-arrow-right"></i></div>
         </div>
-        <div class="row" id="card-counter"></div>
+        <div class="row">
+            <button id="btn-fail" class="offset-md-5 col-md-1 btn btn-outline-danger"
+                style="visibility: hidden">Fail</button>
+            <button id="btn-success" class="col-md-1 btn btn-outline-success"
+                style="visibility: hidden">Success</button>
+        </div>
+        <div id="card-counter"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="help-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Information</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>1. Read the question and answer in your head.</p>
+                    <p>2. Click on the card (or press &darr; on your keyboard) to reveal the answer.</p>
+                    <p>3. Grade yourself honestly: fail (q) or success (w). No one is watching you so no need to cheat!
+                    </p>
+                    <p>4. Go on the next card &rarr;</p>
+
+                    <p>Reset cards <button id="card-reset" class="btn btn-outline-secondary"><i
+                                class="fas fa-redo"></i></button></p>
+                    <p>You can also download offline version of these cards with <a
+                            href="https://apps.ankiweb.net/">Anki</a>.
+                        <button class="btn btn-outline-secondary"><i class=" fas fa-download"></i></button>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 
 <script>
-    $(document).ready(function () {
-        initSqlJs({ locateFile: filename => filename }).then(function (localSQL) {
-            SQL = localSQL;
-            readySetup();
-        });
-    });
+    launchQuizz(
+        "Introduction to Deep Learning",
+        "/anki_package.apkg",
+        true
+    );
 </script>
 
 </html>

@@ -10,8 +10,11 @@ var ankiSeparator = '\x1f';
 var deckNotes;
 var deckIndex = 0;
 var noteIndex = 0;
+var mapFakeIndexToRealIndex = [];
 var SQL;
 var mapImageToBase64 = {};
+var grades = [];
+var hasGraded = [];
 
 
 function sqlToTable(uInt8ArraySQLdb) {
@@ -54,30 +57,122 @@ function visualize() {
 
     document.getElementById("previous-button").addEventListener('click', changePrevious);
     document.getElementById("after-button").addEventListener('click', changeAfter);
-    document.getElementById("card").addEventListener('click', function (e) {
-        if (document.getElementById("card-global-back").style.visibility == "visible") {
-            document.getElementById("card-global-back").style.visibility = "hidden";
-            document.getElementById("card-helper").style.display = "block";
-        } else {
-            document.getElementById("card-global-back").style.visibility = "visible";
-            document.getElementById("card-helper").style.display = "none";
-        }
-    });
-    noteIndex = 33;
+    document.getElementById("ankiapp").addEventListener('click', showBackCard);
+
+    document.getElementById("card-reset").addEventListener('click', resetCards);
+
+    btn_fail = document.getElementById("btn-fail");
+    btn_fail.style.visibility = "hidden";
+    btn_fail.addEventListener('click', function () { gradCard(false) });
+    btn_success = document.getElementById("btn-success");
+    btn_success.style.visibility = "hidden";
+    btn_success.addEventListener('click', function () { gradCard(true) });
+
+    let realIndexes = [];
+    for (let i = 0; i < deckNotes[deckIndex].notes.length; i++) {
+        grades.push(0);
+        hasGraded.push(false);
+        realIndexes.push(i);
+    }
+    mapFakeIndexToRealIndex = realIndexes
+        .map((a) => ({ sort: Math.random(), value: a }))
+        .sort((a, b) => a.sort - b.sort)
+        .map((a) => a.value)
+
+    displayCard();
+}
+
+function resetCards(e) {
+    noteIndex = 0;
+    grades.fill(0, 0, grades.length);
+    hasGraded.fill(false, 0, hasGraded.length);
+    $('#help-modal').modal('hide');
+    computeGlobalGrade();
     displayCard();
 }
 
 
+function showBackCard() {
+    if (document.getElementById("card-global-back").style.visibility == "visible" && !hasGraded[noteIndex]) {
+        document.getElementById("card-global-back").style.visibility = "hidden";
+        document.getElementById("card-helper").style.display = "block";
+        document.getElementById("btn-fail").style.visibility = "hidden";
+        document.getElementById("btn-success").style.visibility = "hidden";
+    } else {
+        document.getElementById("card-global-back").style.visibility = "visible";
+        document.getElementById("card-helper").style.display = "none";
+        document.getElementById("btn-fail").style.visibility = "visible";
+        document.getElementById("btn-success").style.visibility = "visible";
+    }
+}
+
+function gradCard(is_success) {
+    if (hasGraded[noteIndex]) {
+        return
+    }
+
+    if (is_success) {
+        window.grades.fill(1, window.noteIndex, window.noteIndex + 1);
+        document.getElementById("btn-success").classList.remove("btn-outline-success");
+        document.getElementById("btn-success").classList.add("btn-success");
+    } else {
+        window.grades.fill(0, window.noteIndex, window.noteIndex + 1);
+        document.getElementById("btn-fail").classList.remove("btn-outline-danger");
+        document.getElementById("btn-fail").classList.add("btn-danger");
+    }
+    window.hasGraded.fill(true, window.noteIndex, window.noteIndex + 1);
+    document.getElementById("after-button").style.visibility = "visible";
+
+    computeGlobalGrade();
+}
+
+
+function computeGlobalGrade() {
+    let elt = document.getElementById("card-grade-value");
+
+    let grade = window.grades.reduce((a, b) => a + b, 0) / window.grades.length;
+    grade = Math.ceil(100 * grade);
+
+    elt.innerHTML = grade;
+}
+
 function displayCard() {
     let card = document.getElementById("card");
 
-    console.log(noteIndex);
-    document.getElementById("card-global-back").style.visibility = "hidden";
-    document.getElementById("card-front").innerHTML = deckNotes[deckIndex].notes[noteIndex].Front;
-    document.getElementById("card-back").innerHTML = deckNotes[deckIndex].notes[noteIndex].Back;
-    document.getElementById("card-details1").innerHTML = deckNotes[deckIndex].notes[noteIndex].Details1;
-    document.getElementById("card-details2").innerHTML = deckNotes[deckIndex].notes[noteIndex].Details2;
-    document.getElementById("card-image").innerHTML = deckNotes[deckIndex].notes[noteIndex].Image;
+    let realIndex = mapFakeIndexToRealIndex[noteIndex];
+    document.getElementById("card-front").innerHTML = deckNotes[deckIndex].notes[realIndex].Front;
+    document.getElementById("card-back").innerHTML = deckNotes[deckIndex].notes[realIndex].Back;
+    document.getElementById("card-details1").innerHTML = deckNotes[deckIndex].notes[realIndex].Details1;
+    document.getElementById("card-details2").innerHTML = deckNotes[deckIndex].notes[realIndex].Details2;
+    document.getElementById("card-image").innerHTML = deckNotes[deckIndex].notes[realIndex].Image;
+
+    if (window.hasGraded[window.noteIndex]) {
+        document.getElementById("card-global-back").style.visibility = "visible";
+        document.getElementById("btn-fail").style.visibility = "visible";
+        document.getElementById("btn-success").style.visibility = "visible";
+        document.getElementById("after-button").style.visibility = "visible";
+        if (window.grades[window.noteIndex] == 1) {
+            document.getElementById("btn-success").classList.remove("btn-outline-success");
+            document.getElementById("btn-success").classList.add("btn-success");
+            document.getElementById("btn-fail").classList.add("btn-outline-danger");
+            document.getElementById("btn-fail").classList.remove("btn-danger");
+        } else {
+            document.getElementById("btn-fail").classList.remove("btn-outline-danger");
+            document.getElementById("btn-fail").classList.add("btn-danger");
+            document.getElementById("btn-success").classList.add("btn-outline-success");
+            document.getElementById("btn-success").classList.remove("btn-success");
+        }
+    } else {
+        document.getElementById("card-global-back").style.visibility = "hidden";
+        document.getElementById("btn-fail").style.visibility = "hidden";
+        document.getElementById("btn-success").style.visibility = "hidden";
+        document.getElementById("after-button").style.visibility = "hidden";
+
+        document.getElementById("btn-success").classList.add("btn-outline-success");
+        document.getElementById("btn-success").classList.remove("btn-success");
+        document.getElementById("btn-fail").classList.add("btn-outline-danger");
+        document.getElementById("btn-fail").classList.remove("btn-danger");
+    }
 
     let images = card.getElementsByTagName("img");
     for (let i = 0; i < images.length; i++) {
@@ -105,7 +200,7 @@ function changePrevious(e) {
 }
 
 function changeAfter(e) {
-    if (noteIndex < deckNotes[deckIndex].notes.length - 1) {
+    if (noteIndex < deckNotes[deckIndex].notes.length - 1 && hasGraded[noteIndex]) {
         noteIndex++;
         displayCard();
     }
@@ -114,15 +209,9 @@ function changeAfter(e) {
 function changeCard(e) {
     e = e || window.event;
 
-    if (e.keyCode == '38') {
-        // up arrow
-        document.getElementById("card-global-back").style.visibility = "hidden";
-        document.getElementById("card-helper").style.display = "block";
-    }
-    else if (e.keyCode == '40') {
-        // down arrow
-        document.getElementById("card-global-back").style.visibility = "visible";
-        document.getElementById("card-helper").style.display = "none";
+    if (e.keyCode == '38' || e.keyCode == '40') {
+        // up arrow or down arrow
+        showBackCard()
     }
     else if (e.keyCode == '37') {
         // left arrow
@@ -131,6 +220,14 @@ function changeCard(e) {
     else if (e.keyCode == '39') {
         // right arrow
         changeAfter(e);
+    }
+    else if (e.keyCode == '81') {
+        // q
+        gradCard(false);
+    }
+    else if (e.keyCode == '87') {
+        // w
+        gradCard(true);
     }
 
 }
@@ -202,7 +299,7 @@ function arrayNamesToObj(fields, values) {
 }
 
 
-function readySetup() {
+function readySetup(filePath) {
     var options = {};
     var setOptionsImageLoad = function () {
         options.loadImage = true;
@@ -249,5 +346,18 @@ function readySetup() {
     });
 
     // Only for local development
-    ankiURLToTable('/anki_package.apkg');
+    ankiURLToTable(filePath);
 };
+
+
+function launchQuizz(quizzTitle, filePath, randomOrder) {
+    $(document).ready(function () {
+        initSqlJs({ locateFile: filename => filename }).then(function (localSQL) {
+            SQL = localSQL;
+
+            document.getElementById("quizz-title").innerHTML = quizzTitle;
+            document.title = quizzTitle;
+            readySetup(filePath);
+        });
+    });
+}

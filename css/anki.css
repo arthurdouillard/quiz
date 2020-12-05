@@ -21,11 +21,15 @@ body {
 .ankiapp {
     display: flex;
     align-items: center;
-    height: 90%
+    height: 80%
 }
 
 .card-button {
+    cursor: pointer;
+}
 
+#card {
+    cursor: pointer;
 }
 
 #card-front {
@@ -52,4 +56,24 @@ body {
 #card-counter {
     text-align: center;
     padding-bottom: 20px;
+}
+
+.card-grade {
+    text-align: center;
+    padding-top: 10px;
+}
+
+#btn-fail {
+    margin-right: 5px;
+}
+#btn-success {
+    margin-left: 5px;
+}
+
+#quizz-title {
+    font-weight: bold;
+}
+
+.quizz-header {
+    margin-top: 1px;
 }
