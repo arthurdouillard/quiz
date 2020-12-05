@@ -52,7 +52,7 @@ function sqlToTable(uInt8ArraySQLdb) {
 }
 
 
-function visualize() {
+function visualize(options) {
     document.onkeydown = changeCard;
 
     document.getElementById("previous-button").addEventListener('click', changePrevious);
@@ -74,10 +74,15 @@ function visualize() {
         hasGraded.push(false);
         realIndexes.push(i);
     }
-    mapFakeIndexToRealIndex = realIndexes
-        .map((a) => ({ sort: Math.random(), value: a }))
-        .sort((a, b) => a.sort - b.sort)
-        .map((a) => a.value)
+
+    if (options.randomOrder) {
+        mapFakeIndexToRealIndex = realIndexes
+            .map((a) => ({ sort: Math.random(), value: a }))
+            .sort((a, b) => a.sort - b.sort)
+            .map((a) => a.value)
+    } else {
+        mapFakeIndexToRealIndex = realIndexes;
+    }
 
     displayCard();
 }
@@ -268,7 +273,7 @@ function ankiBinaryToTable(ankiArray, options) {
             var f = new FileReader();
             f.onload = function (e) {
                 parseImages(JSON.parse(e.target.result), unzip, filenames);
-                visualize();
+                visualize(options);
             };
             f.readAsText(bb);
         }
@@ -299,12 +304,13 @@ function arrayNamesToObj(fields, values) {
 }
 
 
-function readySetup(filePath) {
+function readySetup(filePath, randomOrder) {
     var options = {};
     var setOptionsImageLoad = function () {
         options.loadImage = true;
         return options;
     }
+    options.randomOrder = randomOrder;
     var eventHandleToTable = function (event) {
         event.stopPropagation();
         event.preventDefault();
@@ -346,7 +352,7 @@ function readySetup(filePath) {
     });
 
     // Only for local development
-    ankiURLToTable(filePath);
+    ankiURLToTable(filePath, options);
 };
 
 
@@ -357,7 +363,7 @@ function launchQuizz(quizzTitle, filePath, randomOrder) {
 
             document.getElementById("quizz-title").innerHTML = quizzTitle;
             document.title = quizzTitle;
-            readySetup(filePath);
+            readySetup(filePath, randomOrder);
         });
     });
 }
