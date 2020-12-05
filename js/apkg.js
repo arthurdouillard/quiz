@@ -69,7 +69,7 @@ function visualize(options) {
     btn_success.addEventListener('click', function () { gradCard(true) });
 
     let realIndexes = [];
-    for (let i = 0; i < deckNotes[deckIndex].notes.length; i++) {
+    for (let i = 0; i < deckNotes.length; i++) {
         grades.push(0);
         hasGraded.push(false);
         realIndexes.push(i);
@@ -84,6 +84,8 @@ function visualize(options) {
         mapFakeIndexToRealIndex = realIndexes;
     }
 
+    document.getElementById("quizz-title").innerHTML = options.title;
+    document.title = options.title;
     displayCard();
 }
 
@@ -145,11 +147,11 @@ function displayCard() {
     let card = document.getElementById("card");
 
     let realIndex = mapFakeIndexToRealIndex[noteIndex];
-    document.getElementById("card-front").innerHTML = deckNotes[deckIndex].notes[realIndex].Front;
-    document.getElementById("card-back").innerHTML = deckNotes[deckIndex].notes[realIndex].Back;
-    document.getElementById("card-details1").innerHTML = deckNotes[deckIndex].notes[realIndex].Details1;
-    document.getElementById("card-details2").innerHTML = deckNotes[deckIndex].notes[realIndex].Details2;
-    document.getElementById("card-image").innerHTML = deckNotes[deckIndex].notes[realIndex].Image;
+    document.getElementById("card-front").innerHTML = deckNotes[realIndex].Front;
+    document.getElementById("card-back").innerHTML = deckNotes[realIndex].Back;
+    document.getElementById("card-details1").innerHTML = deckNotes[realIndex].Details1;
+    document.getElementById("card-details2").innerHTML = deckNotes[realIndex].Details2;
+    document.getElementById("card-image").innerHTML = deckNotes[realIndex].Image;
 
     if (window.hasGraded[window.noteIndex]) {
         document.getElementById("card-global-back").style.visibility = "visible";
@@ -182,11 +184,9 @@ function displayCard() {
     let images = card.getElementsByTagName("img");
     for (let i = 0; i < images.length; i++) {
         let key = decodeURI(images[i].src.split('/').pop());
-        if (key in mapImageToBase64) {
-            images[i].src = "data:image/png;base64," + mapImageToBase64[key];
-        };
+        images[i].src = "imgs/" + key;
         images[i].style = 'height: 100% width: 80%; object-fit: contain';
-    }
+    };
 
     try {
         MathJax.typesetPromise()
@@ -194,7 +194,7 @@ function displayCard() {
         console.log(error)
     }
 
-    document.getElementById("card-counter").innerHTML = (noteIndex + 1) + " / " + deckNotes[deckIndex].notes.length;
+    document.getElementById("card-counter").innerHTML = (noteIndex + 1) + " / " + deckNotes.length;
 }
 
 function changePrevious(e) {
@@ -205,7 +205,7 @@ function changePrevious(e) {
 }
 
 function changeAfter(e) {
-    if (noteIndex < deckNotes[deckIndex].notes.length - 1 && hasGraded[noteIndex]) {
+    if (noteIndex < deckNotes.length - 1 && hasGraded[noteIndex]) {
         noteIndex++;
         displayCard();
     }
@@ -261,6 +261,7 @@ function converterEngine(input) { // fn BLOB => Binary => Base64 ?
 
 function ankiBinaryToTable(ankiArray, options) {
     var compressed = new Uint8Array(ankiArray);
+
     var unzip = new Zlib.Unzip(compressed);
     var filenames = unzip.getFilenames();
     if (filenames.indexOf("collection.anki2") >= 0) {
@@ -360,9 +361,6 @@ function launchQuizz(quizzTitle, filePath, randomOrder) {
     $(document).ready(function () {
         initSqlJs({ locateFile: filename => filename }).then(function (localSQL) {
             SQL = localSQL;
-
-            document.getElementById("quizz-title").innerHTML = quizzTitle;
-            document.title = quizzTitle;
             readySetup(filePath, randomOrder);
         });
     });
