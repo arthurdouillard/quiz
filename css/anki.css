@@ -75,5 +75,9 @@ body {
 }
 
 .quizz-header {
-    margin-top: 1px;
+    margin-top: 10px;
+}
+
+#quizz-info {
+    text-align: right;
 }
